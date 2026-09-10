@@ -15,6 +15,14 @@ interface AgentIdentity {
   endpoint: string;
   humanOwner: string;
   reputation: number;
+  agentBook?: {
+    agentWallet: string | null;
+    humanId: string | null;
+    registered: boolean;
+    ensName?: string;
+    error?: string;
+    chain: string;
+  };
 }
 
 export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
@@ -113,6 +121,17 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
                   <InfoRow
                     label="Capabilities"
                     value={agent.capabilities.join(", ")}
+                  />
+                  <InfoRow
+                    label="AgentBook"
+                    value={
+                      agent.agentBook?.registered
+                        ? `Registered · ${agent.agentBook.humanId?.slice(0, 14)}… (${agent.agentBook.chain})`
+                        : agent.agentBook?.error
+                          ? `Lookup issue: ${agent.agentBook.error}`
+                          : "Not registered on World Chain yet"
+                    }
+                    mono={Boolean(agent.agentBook?.registered)}
                   />
                 </div>
               )}

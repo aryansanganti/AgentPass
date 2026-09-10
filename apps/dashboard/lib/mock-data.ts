@@ -32,106 +32,14 @@ export const MOCK_AGENT = {
   },
 };
 
-// --- Lending Positions (PRD 02 — replaced in Phase 3) ---
-export interface MockPosition {
-  protocol: string;
-  protocolIcon: string;
-  asset: string;
-  assetIcon: string;
-  supplied: number;
-  suppliedUsd: number;
-  borrowed: number;
-  borrowedUsd: number;
-  ltv: number;
-  liquidationThreshold: number;
-  healthFactor: number;
-}
+// --- Lending Positions / Risk Report (PRD 02 — LIVE via /api/risk + @agentpass/graph-client) ---
+// MOCK_POSITIONS / MOCK_RISK_REPORT removed in Phase 3.
 
-export const MOCK_POSITIONS: MockPosition[] = [
-  {
-    protocol: "Aave V3",
-    protocolIcon: "🔷",
-    asset: "WETH",
-    assetIcon: "⟠",
-    supplied: 4.2,
-    suppliedUsd: 10080,
-    borrowed: 6800,
-    borrowedUsd: 6800,
-    ltv: 82,
-    liquidationThreshold: 85,
-    healthFactor: 1.04,
-  },
-  {
-    protocol: "Compound V3",
-    protocolIcon: "🟢",
-    asset: "USDC",
-    assetIcon: "💲",
-    supplied: 5000,
-    suppliedUsd: 5000,
-    borrowed: 2200,
-    borrowedUsd: 2200,
-    ltv: 44,
-    liquidationThreshold: 80,
-    healthFactor: 1.82,
-  },
-  {
-    protocol: "Aave V3",
-    protocolIcon: "🔷",
-    asset: "DAI",
-    assetIcon: "◈",
-    supplied: 3500,
-    suppliedUsd: 3500,
-    borrowed: 0,
-    borrowedUsd: 0,
-    ltv: 0,
-    liquidationThreshold: 77,
-    healthFactor: Infinity,
-  },
-];
+// --- Payment (PRD 03 — LIVE via /api/analyze + @agentpass/hedera-payments) ---
+// MOCK_PAYMENT removed in Phase 4; receipt comes from sessionStorage / API.
 
-// --- Risk Report (PRD 02 — replaced in Phase 3) ---
-export const MOCK_RISK_REPORT = {
-  wallet: "",  // filled dynamically from user input
-  riskScore: 72,
-  factors: [
-    "High LTV on Aave V3 WETH position (82%) — only 3% from liquidation threshold",
-    "Concentrated exposure in ETH — 54% of supplied value in a single volatile asset",
-    "Health factor 1.04 on primary position — dangerously close to liquidation",
-    "No stablecoin hedge on largest borrowed position",
-  ],
-  recommendation: "reduce exposure" as const,
-  timestamp: Date.now(),
-  protocolsChecked: ["Aave V3", "Compound V3"],
-  totalSupplied: 18580,
-  totalBorrowed: 9000,
-  netPosition: 9580,
-};
-
-// --- Payment (PRD 03 — replaced in Phase 4) ---
-export const MOCK_PAYMENT = {
-  price: 0.05,
-  currency: "HBAR",
-  priceUsd: 0.003,
-  budget: {
-    total: 1.0,
-    remaining: 0.95,
-    spent: 0.05,
-  },
-  receipt: {
-    txHash: "0.0.12345@1694567890.123456789",
-    explorerUrl: "https://hashscan.io/testnet/transaction/0.0.12345@1694567890.123456789",
-    timestamp: Date.now(),
-    status: "SUCCESS" as const,
-  },
-};
-
-// --- World ID Verification (PRD 04 — replaced in Phase 5) ---
-export const MOCK_VERIFICATION = {
-  verified: true,
-  method: "World ID Sandbox",
-  hash: "0x8f3a2b1c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a",
-  timestamp: Date.now() - 86400000, // verified 1 day ago
-};
+// --- World ID Verification (PRD 04 — live via /api/world/*) ---
+// MOCK_VERIFICATION removed in Phase 5; credential comes from sessionStorage.
 
 // --- Activity Log Steps (used by Live Check screen) ---
 export interface ActivityStep {
@@ -146,7 +54,7 @@ export const MOCK_ACTIVITY_STEPS: ActivityStep[] = [
   {
     id: "graph-query",
     label: "Querying The Graph",
-    detail: "Aave V3, Compound V3 positions via Subgraph MCP",
+    detail: "Aave V3, Compound V3 positions via Subgraph MCP (live)",
     duration: 2200,
     icon: "graph",
   },
@@ -160,21 +68,21 @@ export const MOCK_ACTIVITY_STEPS: ActivityStep[] = [
   {
     id: "pay-discover",
     label: "Calling paid analysis endpoint",
-    detail: `Price: ${0.05} HBAR (~$${0.003})`,
+    detail: "Price: 0.05 HBAR via x402 / Blocky402",
     duration: 800,
     icon: "pay",
   },
   {
     id: "budget-check",
-    label: "Budget check passed",
-    detail: "0.95 HBAR remaining after this call",
+    label: "Budget check",
+    detail: "Agent session budget vs quote",
     duration: 600,
     icon: "budget",
   },
   {
     id: "payment-confirm",
     label: "Payment confirmed",
-    detail: "tx: 0.0.12345@1694567890... — view on HashScan",
+    detail: "Hedera testnet tx — view on HashScan",
     duration: 2000,
     icon: "confirm",
   },

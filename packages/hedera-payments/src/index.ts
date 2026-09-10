@@ -1,21 +1,27 @@
-// @agentpass/hedera-payments
-// x402 payment client (Blocky402) on Hedera testnet
-// Real implementation in Phase 4
-
 export const HEDERA_PACKAGE_VERSION = "0.1.0";
 
-export interface PaymentReceipt {
-  txHash: string;
-  amount: number;
-  currency: string;
-  timestamp: number;
-  explorerUrl: string;
-}
+export {
+  callPaidEndpoint,
+  analyzePaid,
+  BudgetDeclinedError,
+  AgentBudget,
+  createSessionBudget,
+  unlockSessionBudget,
+  getSessionBudget,
+  NotHumanBackedError,
+} from "./client";
 
-export async function callPaidEndpoint(
-  url: string,
-  body: object,
-  maxBudget: number
-): Promise<{ data: unknown; receipt: PaymentReceipt }> {
-  throw new Error("Not implemented — use mock data until Phase 4");
-}
+export type {
+  PaymentReceipt,
+  PaidCallResult,
+  BudgetState,
+  HcsLogEntry,
+} from "./client";
+
+export { logPaymentToHcs } from "./hcs-log";
+export {
+  FACILITATOR_URL,
+  ANALYZE_API_URL,
+  DEFAULT_SESSION_BUDGET_HBAR,
+  HEDERA_CAIP2,
+} from "./config";

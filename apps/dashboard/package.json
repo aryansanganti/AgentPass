@@ -9,10 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@agentpass/ens-identity": "workspace:*",
+    "@agentpass/graph-client": "workspace:*",
+    "@agentpass/hedera-payments": "workspace:*",
+    "@agentpass/world-verify": "workspace:*",
+    "@worldcoin/idkit": "4.2.3",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "@agentpass/ens-identity": "workspace:*"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

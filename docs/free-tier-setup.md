@@ -15,13 +15,15 @@
 - [ ] Create or import a **burner/test wallet** (never use a real wallet for hackathon dev)
 - Needed for: ENS Studio login, Hedera testnet, everything
 
-### 2. The Graph — Subgraph Studio API Key
+### 2. The Graph — Subgraph Studio API Key ⚠️ **Required for Phase 3**
 - [ ] Go to [thegraph.com/studio](https://thegraph.com/studio)
 - [ ] Connect wallet (no gas cost, just a login signature)
 - [ ] Click **API Keys** → **Create API Key** → name it `agentpass-hackathon`
 - [ ] Optional: set query limit in security settings to stay under 100k/month
 - [ ] Copy key → paste into `.env` as `GRAPH_API_KEY`
+- [ ] Smoke test: `pnpm --filter @agentpass/graph-client smoke 0xYourWallet`
 - **Free tier:** 100,000 queries/month — more than enough for hackathon dev + demo
+- **Used by:** `packages/graph-client` → Subgraph MCP (`subgraphs.mcp.thegraph.com`) + Gateway fallback
 
 ### 3. Sepolia Testnet ETH
 - [ ] Use a free Sepolia faucet:
@@ -31,12 +33,17 @@
 - [ ] Fund your burner wallet with Sepolia ETH
 - Needed for: ENS name registration on Sepolia
 
-### 4. Hedera Testnet Account
+### 4. Hedera Testnet Account ⚠️ **Required for Phase 4**
 - [ ] Sign up at [portal.hedera.com](https://portal.hedera.com)
 - [ ] Create a **testnet** account → gives you Account ID (`0.0.xxxxx`) + private key
 - [ ] Use the portal's built-in faucet to top up free test HBAR (repeatable)
-- [ ] Copy credentials → paste into `.env` as `HEDERA_ACCOUNT_ID` and `HEDERA_PRIVATE_KEY`
-- **Free:** Testnet HBAR from faucet, unlimited top-ups
+- [ ] Copy credentials → `.env` as `HEDERA_ACCOUNT_ID` and `HEDERA_PRIVATE_KEY`
+- [ ] Set `HEDERA_PAY_TO` to the same account (or a second merchant account)
+- [ ] Run API: `pnpm dev:api` (port 4001) then dashboard: `pnpm dev`
+- [ ] Optional smoke: `pnpm --filter @agentpass/hedera-payments smoke 0xYourWallet`
+- [ ] Budget decline demo: open `/check?address=0x...&lowBudget=1`
+- **Facilitator:** Blocky402 testnet `https://api.testnet.blocky402.com` (open access, no API key)
+- **Free:** Testnet HBAR from faucet + HCS audit topic
 
 ### 5. World ID Sandbox Access
 - [ ] ⚠️ **Apply IMMEDIATELY** — may take time to approve

@@ -1,0 +1,12 @@
+{
+  "dc911b6656fab2e31a7f6cf25edc083297631700a6ec2d40": {
+    "verified": true,
+    "hash": "0x84bfe7ade462993a57263f8d31e4a03b3793b634d812efc02e00368bbfe1b4fa",
+    "nullifier": "sandbox-84bfe7ade462993a",
+    "method": "sandbox-demo",
+    "timestamp": 1789033023334,
+    "action": "agentpass-human-gate",
+    "agentBookHumanId": null,
+    "sessionId": "dc911b6656fab2e31a7f6cf25edc083297631700a6ec2d40"
+  }
+}

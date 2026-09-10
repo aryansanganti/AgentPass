@@ -20,7 +20,8 @@ git clone https://github.com/aryansanganti/AgentPass-ETHONLINE.git
 cd AgentPass-ETHONLINE
 cp .env.example .env   # fill in your free-tier credentials
 pnpm install
-pnpm dev               # opens dashboard at http://localhost:3000
+pnpm dev:all           # dashboard :3000 + x402 API :4001
+# or separately: pnpm dev:api   &&   pnpm dev
 ```
 
 ## Architecture

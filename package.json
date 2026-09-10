@@ -5,6 +5,8 @@
   "description": "AgentPass — an AI agent that checks your DeFi risk, verified human, paid per use, no API keys.",
   "scripts": {
     "dev": "pnpm --filter dashboard dev",
+    "dev:api": "pnpm --filter @agentpass/api dev",
+    "dev:all": "pnpm --parallel --filter dashboard --filter @agentpass/api dev",
     "build": "pnpm -r build",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",

@@ -1,9 +1,12 @@
 import { publicClient, walletClient, account, ADDRESSES } from "./config";
 import { parseAbi } from "viem";
+import {
+  requireHumanBacked,
+  type WorldCredential,
+  NotHumanBackedError,
+} from "@agentpass/world-verify";
 
 // Based on ENSv2 Enhanced Access Control documentation
-// roles are often defined as bytes32 hashes or simple increments in some implementations.
-// For the sake of this mock/simulated integration, we will define them as simple bytes32
 export const ROLES = {
   OWNER: "0x0000000000000000000000000000000000000000000000000000000000000000",
   OPERATOR: "0x1000000000000000000000000000000000000000000000000000000000000000",
@@ -37,8 +40,20 @@ export async function grantRole(role: `0x${string}`, targetAddress: `0x${string}
 
   const txHash = await walletClient.writeContract(request);
   await publicClient.waitForTransactionReceipt({ hash: txHash });
-  
+
   return txHash;
+}
+
+/**
+ * OPERATOR role requires human-backing (PRD 04 gates PRD 01).
+ * Demo path: unverified → NotHumanBackedError; verified → grantRole(OPERATOR).
+ */
+export async function grantOperatorRole(
+  targetAddress: `0x${string}`,
+  credential: WorldCredential | null | undefined
+) {
+  requireHumanBacked(credential);
+  return grantRole(ROLES.OPERATOR, targetAddress);
 }
 
 export async function hasRole(role: `0x${string}`, targetAddress: `0x${string}`): Promise<boolean> {
@@ -57,3 +72,5 @@ export async function hasRole(role: `0x${string}`, targetAddress: `0x${string}`)
     args: [role, targetAddress],
   });
 }
+
+export { NotHumanBackedError };

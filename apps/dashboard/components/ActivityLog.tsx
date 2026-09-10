@@ -7,6 +7,8 @@ interface ActivityLogProps {
   steps: ActivityStep[];
   onComplete: () => void;
   walletAddress: string;
+  /** Optional: await real work per step; return string to override step detail */
+  onStep?: (step: ActivityStep, index: number) => Promise<string | void>;
 }
 
 const STEP_ICONS: Record<ActivityStep["icon"], { active: string; done: string }> = {
@@ -22,38 +24,53 @@ export default function ActivityLog({
   steps,
   onComplete,
   walletAddress,
+  onStep,
 }: ActivityLogProps) {
   const [currentStep, setCurrentStep] = useState(-1);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [stepDetails, setStepDetails] = useState<Record<string, string>>({});
   const [isRunning, setIsRunning] = useState(false);
+  const [stepDurations, setStepDurations] = useState<Record<string, number>>({});
 
   const runSteps = useCallback(async () => {
     setIsRunning(true);
     setCurrentStep(-1);
     setCompletedSteps(new Set());
+    setStepDetails({});
+    setStepDurations({});
 
-    // Initial delay before starting
     await new Promise((r) => setTimeout(r, 600));
 
     for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
       setCurrentStep(i);
+      const started = Date.now();
 
-      // Wait for the step's simulated duration
-      await new Promise((r) => setTimeout(r, steps[i].duration));
+      if (onStep) {
+        const detail = await onStep(step, i);
+        if (typeof detail === "string" && detail.length > 0) {
+          setStepDetails((prev) => ({ ...prev, [step.id]: detail }));
+        }
+      } else {
+        await new Promise((r) => setTimeout(r, step.duration));
+      }
+
+      setStepDurations((prev) => ({
+        ...prev,
+        [step.id]: Date.now() - started,
+      }));
 
       setCompletedSteps((prev) => {
         const next = new Set(prev);
-        next.add(steps[i].id);
+        next.add(step.id);
         return next;
       });
     }
 
     setIsRunning(false);
-
-    // Brief pause then callback
     await new Promise((r) => setTimeout(r, 800));
     onComplete();
-  }, [steps, onComplete]);
+  }, [steps, onComplete, onStep]);
 
   useEffect(() => {
     runSteps();
@@ -61,7 +78,6 @@ export default function ActivityLog({
 
   return (
     <div className="space-y-3">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className={`w-2.5 h-2.5 rounded-full ${isRunning ? "bg-[var(--color-accent-purple)] pulse-glow" : "bg-[var(--color-success)]"}`} />
         <span className="text-sm text-[var(--color-text-secondary)]">
@@ -72,12 +88,13 @@ export default function ActivityLog({
         </span>
       </div>
 
-      {/* Steps */}
       <div className="space-y-1">
         {steps.map((step, index) => {
           const isActive = currentStep === index && !completedSteps.has(step.id);
           const isDone = completedSteps.has(step.id);
           const isVisible = index <= currentStep;
+          const detail = stepDetails[step.id] ?? step.detail;
+          const durationMs = stepDurations[step.id] ?? step.duration;
 
           if (!isVisible) return null;
 
@@ -92,7 +109,6 @@ export default function ActivityLog({
               `}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {/* Status indicator */}
               <div className="mt-0.5 flex-shrink-0">
                 {isActive ? (
                   <div className="spinner" />
@@ -103,7 +119,6 @@ export default function ActivityLog({
                 ) : null}
               </div>
 
-              {/* Content */}
               <div className="flex-1 min-w-0">
                 <div
                   className={`text-sm font-medium transition-colors duration-300 ${
@@ -126,17 +141,16 @@ export default function ActivityLog({
                     </span>
                   )}
                 </div>
-                {step.detail && (
+                {detail && (
                   <div className="text-xs text-[var(--color-text-muted)] mt-0.5 mono">
-                    {step.detail}
+                    {detail}
                   </div>
                 )}
               </div>
 
-              {/* Timing */}
               {isDone && (
                 <span className="text-xs text-[var(--color-text-muted)] mono flex-shrink-0">
-                  {(step.duration / 1000).toFixed(1)}s
+                  {(durationMs / 1000).toFixed(1)}s
                 </span>
               )}
             </div>
@@ -144,17 +158,14 @@ export default function ActivityLog({
         })}
       </div>
 
-      {/* Progress bar */}
       <div className="mt-4 relative h-1 rounded-full bg-[rgba(255,255,255,0.05)] overflow-hidden">
         <div
           className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-teal)] transition-all duration-700 ease-out"
           style={{
-            width: `${((completedSteps.size) / steps.length) * 100}%`,
+            width: `${(completedSteps.size / steps.length) * 100}%`,
           }}
         />
-        {isRunning && (
-          <div className="absolute inset-0 shimmer" />
-        )}
+        {isRunning && <div className="absolute inset-0 shimmer" />}
       </div>
     </div>
   );

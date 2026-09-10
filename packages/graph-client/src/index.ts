@@ -1,32 +1,37 @@
-// @agentpass/graph-client
-// Subgraph MCP wrapper + risk scoring engine
-// Real implementation in Phase 3
+import { queryLendingPositions } from "./mcp";
+import { computeRisk } from "./risk-engine";
+import type { RiskReport } from "./types";
 
 export const GRAPH_PACKAGE_VERSION = "0.1.0";
 
-export interface RiskReport {
-  wallet: string;
-  riskScore: number;       // 0-100
-  factors: string[];       // e.g. "high LTV on Aave (82%)"
-  recommendation: "reduce exposure" | "hold" | "safe";
-}
+export type {
+  LendingPosition,
+  RiskRecommendation,
+  RiskReport,
+  ProtocolSubgraph,
+} from "./types";
 
-export interface LendingPosition {
-  protocol: string;
-  asset: string;
-  supplied: number;
-  borrowed: number;
-  ltv: number;
-  liquidationThreshold: number;
-}
+export { LENDING_SUBGRAPHS } from "./types";
+export { queryLendingPositions, executeViaMcp, executeViaGateway, executeSubgraphQuery } from "./mcp";
+export { computeRisk } from "./risk-engine";
+export { lendingPositionsQuery } from "./queries/lending";
+export { queryCache, TtlCache } from "./cache";
 
-export async function queryLendingPositions(
+/**
+ * End-to-end: live Subgraph MCP (or Gateway) positions → reasoned risk report.
+ */
+export async function analyzeWalletRisk(
   wallet: string,
-  protocols: string[]
-): Promise<LendingPosition[]> {
-  throw new Error("Not implemented — use mock data until Phase 3");
-}
-
-export function computeRisk(positions: LendingPosition[]): RiskReport {
-  throw new Error("Not implemented — use mock data until Phase 3");
+  protocols: string[] = ["aave", "compound"]
+): Promise<RiskReport> {
+  const { positions, source } = await queryLendingPositions(wallet, protocols);
+  return computeRisk(wallet, positions, {
+    protocolsChecked: protocols.map((p) => {
+      const k = p.toLowerCase();
+      if (k.includes("aave")) return "Aave V3";
+      if (k.includes("compound")) return "Compound V3";
+      return p;
+    }),
+    source,
+  });
 }
