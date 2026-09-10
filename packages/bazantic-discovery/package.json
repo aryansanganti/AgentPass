@@ -1,0 +1,11 @@
+{
+  "name": "@agentpass/bazantic-discovery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bazantic Gateway + Recipe registration for AgentPass",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@agentpass/agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AgentPass core agent runtime",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  }
+}

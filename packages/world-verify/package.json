@@ -1,0 +1,11 @@
+{
+  "name": "@agentpass/world-verify",
+  "version": "0.1.0",
+  "private": true,
+  "description": "World ID Sandbox / AgentKit human verification for AgentPass",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  }
+}

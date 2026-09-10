@@ -1,0 +1,11 @@
+{
+  "name": "@agentpass/graph-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Subgraph MCP wrapper + risk scoring engine for AgentPass",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  }
+}

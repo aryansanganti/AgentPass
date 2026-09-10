@@ -1,0 +1,11 @@
+{
+  "name": "@agentpass/hedera-payments",
+  "version": "0.1.0",
+  "private": true,
+  "description": "x402 payment client (Blocky402) on Hedera testnet for AgentPass",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  }
+}
