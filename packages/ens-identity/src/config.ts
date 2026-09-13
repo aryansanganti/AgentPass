@@ -6,10 +6,17 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: "../../.env" }); // Assuming we run from package root
 
 const rpcUrl = process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org";
-const privateKey = process.env.PRIVATE_KEY as `0x${string}`;
+const rawPrivateKey = process.env.PRIVATE_KEY || "";
+const privateKey = /^0x[a-fA-F0-9]{64}$/.test(rawPrivateKey)
+  ? (rawPrivateKey as `0x${string}`)
+  : null;
 
-if (!privateKey) {
+if (!rawPrivateKey) {
   console.warn("WARNING: PRIVATE_KEY not set in .env. Some scripts will fail.");
+} else if (!privateKey) {
+  console.warn(
+    "WARNING: PRIVATE_KEY is set but not a valid 32-byte hex value. Ignoring invalid key."
+  );
 }
 
 export const account = privateKey ? privateKeyToAccount(privateKey) : null;
@@ -21,10 +28,10 @@ export const publicClient = createPublicClient({
 
 export const walletClient = account
   ? createWalletClient({
-      account,
-      chain: sepolia,
-      transport: http(rpcUrl),
-    })
+    account,
+    chain: sepolia,
+    transport: http(rpcUrl),
+  })
   : null;
 
 // Official or placeholder ENSv2 Sepolia addresses

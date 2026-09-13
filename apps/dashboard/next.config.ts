@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     "@agentpass/ens-identity",
     "@agentpass/graph-client",
     "@agentpass/hedera-payments",
+    "@agentpass/world-verify",
   ],
   serverExternalPackages: [
     "@modelcontextprotocol/sdk",

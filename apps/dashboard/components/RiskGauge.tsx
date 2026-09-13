@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { riskColor, riskLabel } from "@/lib/mock-data";
+import { riskLabel } from "@/lib/mock-data";
+
+// Must be raw hex — CSS variable strings break SVG stroke and inline filter
+function riskHex(score: number): string {
+  if (score <= 30) return "#22c55e";
+  if (score <= 60) return "#f59e0b";
+  return "#ef4444";
+}
 
 interface RiskGaugeProps {
   score: number;
@@ -9,111 +16,85 @@ interface RiskGaugeProps {
   animate?: boolean;
 }
 
-export default function RiskGauge({
-  score,
-  size = 200,
-  animate = true,
-}: RiskGaugeProps) {
+export default function RiskGauge({ score, size = 200, animate = true }: RiskGaugeProps) {
   const [displayScore, setDisplayScore] = useState(animate ? 0 : score);
   const [mounted, setMounted] = useState(false);
 
-  // Animate the score counting up
   useEffect(() => {
     setMounted(true);
-    if (!animate) {
-      setDisplayScore(score);
-      return;
-    }
+    if (!animate) { setDisplayScore(score); return; }
 
-    let start = 0;
     const duration = 1500;
     const startTime = Date.now();
 
     const tick = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-
-      // Eased progress (ease-out cubic)
       const eased = 1 - Math.pow(1 - progress, 3);
-      start = Math.round(eased * score);
-      setDisplayScore(start);
-
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      }
+      setDisplayScore(Math.round(eased * score));
+      if (progress < 1) requestAnimationFrame(tick);
     };
-
     requestAnimationFrame(tick);
   }, [score, animate]);
 
-  const radius = 45;
+  const radius = 42;
   const circumference = 2 * Math.PI * radius;
-  const progress = (displayScore / 100) * circumference;
-  const strokeDashoffset = circumference - progress;
+  const strokeDashoffset = circumference - (displayScore / 100) * circumference;
 
-  const color = riskColor(displayScore);
+  const color = riskHex(displayScore);
   const label = riskLabel(displayScore);
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-5">
       <div className="relative" style={{ width: size, height: size }}>
         <svg
           viewBox="0 0 100 100"
-          className="transform -rotate-90"
+          className="-rotate-90"
           style={{ width: size, height: size }}
         >
-          {/* Background circle */}
+          {/* Track */}
           <circle
-            cx="50"
-            cy="50"
-            r={radius}
+            cx="50" cy="50" r={radius}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.05)"
-            strokeWidth="8"
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth="9"
             strokeLinecap="round"
           />
-
-          {/* Progress circle */}
+          {/* Progress arc */}
           {mounted && (
             <circle
-              cx="50"
-              cy="50"
-              r={radius}
+              cx="50" cy="50" r={radius}
               fill="none"
               stroke={color}
-              strokeWidth="8"
+              strokeWidth="9"
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
-              className="transition-all duration-100 ease-out"
-              style={{
-                filter: `drop-shadow(0 0 8px ${color})`,
-              }}
+              style={{ filter: `drop-shadow(0 0 10px ${color})`, transition: "stroke-dashoffset 0.1s ease-out" }}
             />
           )}
         </svg>
 
-        {/* Score number in center */}
+        {/* Centre text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
-            className="text-4xl font-bold tabular-nums"
-            style={{ color, fontFamily: "var(--font-sans)" }}
+            className="font-extrabold tabular-nums leading-none"
+            style={{ color, fontSize: size * 0.2 }}
           >
             {displayScore}
           </span>
-          <span className="text-xs text-[var(--color-text-muted)] mt-1">
-            / 100
-          </span>
+          <span className="text-xs text-[#94a3b8] mt-1">/ 100</span>
         </div>
       </div>
 
-      {/* Label */}
+      {/* Risk label pill */}
       <div
-        className="text-sm font-semibold px-4 py-1.5 rounded-full border"
+        className="text-sm font-bold px-5 py-1.5 rounded-full border"
         style={{
           color,
-          borderColor: `${color}33`,
-          backgroundColor: `${color}0d`,
+          borderColor: `${color}55`,
+          backgroundColor: `${color}12`,
+          boxShadow: `0 0 16px ${color}22`,
         }}
       >
         {label}

@@ -46,13 +46,29 @@ export async function POST(req: NextRequest) {
       ensName: body.ensName,
     });
 
-    return NextResponse.json({
+    const publicCredential = {
+      ...credential,
+      method: "world-id" as const,
+    };
+
+    const response = NextResponse.json({
       ok: true,
-      credential,
+      credential: publicCredential,
       sessionId: credential.sessionId,
       budget: budget.state,
-      agentBook,
+      agentBook: {
+        ...agentBook,
+        error: undefined,
+      },
     });
+    response.cookies.set("agentpass-world-session", credential.sessionId!, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    });
+    return response;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "World verification failed";

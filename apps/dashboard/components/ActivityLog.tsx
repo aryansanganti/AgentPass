@@ -12,12 +12,12 @@ interface ActivityLogProps {
 }
 
 const STEP_ICONS: Record<ActivityStep["icon"], { active: string; done: string }> = {
-  graph: { active: "📡", done: "✅" },
-  compute: { active: "🧮", done: "✅" },
-  pay: { active: "💳", done: "✅" },
-  budget: { active: "💰", done: "✅" },
-  confirm: { active: "⏳", done: "✅" },
-  complete: { active: "🔄", done: "✅" },
+  graph: { active: "•", done: "✓" },
+  compute: { active: "•", done: "✓" },
+  pay: { active: "•", done: "✓" },
+  budget: { active: "•", done: "✓" },
+  confirm: { active: "•", done: "✓" },
+  complete: { active: "•", done: "✓" },
 };
 
 export default function ActivityLog({
@@ -121,13 +121,12 @@ export default function ActivityLog({
 
               <div className="flex-1 min-w-0">
                 <div
-                  className={`text-sm font-medium transition-colors duration-300 ${
-                    isActive
+                  className={`text-sm font-medium transition-colors duration-300 ${isActive
                       ? "text-[var(--color-text-primary)]"
                       : isDone
-                      ? "text-[var(--color-text-secondary)]"
-                      : "text-[var(--color-text-muted)]"
-                  }`}
+                        ? "text-[var(--color-text-secondary)]"
+                        : "text-[var(--color-text-muted)]"
+                    }`}
                 >
                   {step.label}
                   {isActive && (

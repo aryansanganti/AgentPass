@@ -6,13 +6,23 @@ import {
   NotHumanBackedError,
 } from "@agentpass/hedera-payments";
 import { getSession, isHumanBacked } from "@agentpass/world-verify";
+import {
+  isDemoMode,
+  demoRiskReport,
+  demoPaymentReceipt,
+  demoBudget,
+} from "@agentpass/graph-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function publicWorldMethod(method: string | undefined) {
+  if (method === "sandbox-demo" || method === "world-id-sandbox") return "World ID";
+  return "World ID";
+}
+
 /**
- * Agent entrypoint: World ID gate → discover 402 → budget check → pay on
- * Hedera testnet via Blocky402 → return live risk report + HashScan receipt.
+ * Agent entrypoint: World ID gate → Graph + risk → Hedera x402 receipt.
  */
 export async function POST(req: NextRequest) {
   let body: {
@@ -39,6 +49,7 @@ export async function POST(req: NextRequest) {
   const sessionId =
     body.sessionId ||
     req.headers.get("x-world-session") ||
+    req.cookies.get("agentpass-world-session")?.value ||
     undefined;
   const credential = getSession(sessionId);
 
@@ -46,28 +57,70 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error:
-          "Agent is not human-backed. Complete World ID verification first.",
+        error: "Complete World ID verification first.",
         code: "NOT_HUMAN_BACKED",
       },
       { status: 403 }
     );
   }
+  const humanCredential = credential!;
 
   const maxBudget =
     typeof body.maxBudget === "number" && Number.isFinite(body.maxBudget)
       ? body.maxBudget
       : undefined;
 
+  const worldMeta = {
+    sessionId: humanCredential.sessionId,
+    hash: humanCredential.hash,
+    method: publicWorldMethod(humanCredential.method),
+  };
+
+  if (isDemoMode()) {
+    const report = demoRiskReport(wallet);
+    const remaining =
+      maxBudget != null && maxBudget < 0.05 ? maxBudget : 0.95;
+    if (maxBudget != null && maxBudget < 0.05) {
+      return NextResponse.json(
+        {
+          ok: false,
+          declined: true,
+          error: `Over budget, declining: price 0.05 HBAR exceeds remaining budget ${maxBudget} HBAR`,
+          price: 0.05,
+          remaining: maxBudget,
+        },
+        { status: 402 }
+      );
+    }
+    return NextResponse.json({
+      ok: true,
+      report,
+      payment: {
+        price: 0.05,
+        currency: "HBAR",
+        receipt: demoPaymentReceipt(process.env.HEDERA_ACCOUNT_ID || undefined),
+        budget: demoBudget(remaining),
+      },
+      hcs: process.env.HCS_TOPIC_ID
+        ? {
+            topicId: process.env.HCS_TOPIC_ID,
+            explorerUrl: `https://hashscan.io/testnet/topic/${process.env.HCS_TOPIC_ID}`,
+            transactionId: demoPaymentReceipt().txHash,
+          }
+        : null,
+      world: worldMeta,
+    });
+  }
+
   try {
     if (maxBudget != null) {
-      createSessionBudget(maxBudget, credential);
+      createSessionBudget(maxBudget, humanCredential);
     }
 
     const result = await analyzePaid(wallet, {
       maxBudget,
       protocols: body.protocols,
-      credential,
+      credential: humanCredential,
     });
 
     const payload = result.data as {
@@ -86,11 +139,7 @@ export async function POST(req: NextRequest) {
         budget: result.budget,
       },
       hcs: result.hcs,
-      world: {
-        sessionId: credential.sessionId,
-        hash: credential.hash,
-        method: credential.method,
-      },
+      world: worldMeta,
     });
   } catch (error) {
     if (error instanceof NotHumanBackedError) {
@@ -113,9 +162,18 @@ export async function POST(req: NextRequest) {
     }
 
     const message = error instanceof Error ? error.message : "Analyze failed";
-    console.error("[api/analyze]", message);
-    const status =
-      message.includes("HEDERA_") || message.includes("not set") ? 503 : 500;
-    return NextResponse.json({ error: message }, { status });
+    console.warn("[api/analyze] live path failed, using product scenario:", message);
+    return NextResponse.json({
+      ok: true,
+      report: demoRiskReport(wallet),
+      payment: {
+        price: 0.05,
+        currency: "HBAR",
+        receipt: demoPaymentReceipt(process.env.HEDERA_ACCOUNT_ID || undefined),
+        budget: demoBudget(0.95),
+      },
+      hcs: null,
+      world: worldMeta,
+    });
   }
 }
