@@ -40,7 +40,7 @@ export async function getTextRecord(name: string, key: string): Promise<string> 
     const mockDb: Record<string, string> = {
       "agent.capabilities": "[\"defi-risk-analysis\",\"portfolio-query\"]",
       "agent.endpoint": "https://api.agentpass.eth/analyze",
-      "agent.human-owner": "0x7a3f...b42c (World ID verified)",
+      "agent.human-owner": "0x7a3f8E2d1C9b4A5e6F0d7B8c9E1a2D3f4C5b6A7c",
       "agent.reputation": "14",
     };
     return mockDb[key] || "";

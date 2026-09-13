@@ -50,11 +50,11 @@ export interface ActivityStep {
   icon: "graph" | "compute" | "pay" | "budget" | "confirm" | "complete";
 }
 
-export const MOCK_ACTIVITY_STEPS: ActivityStep[] = [
+export const ACTIVITY_STEPS: ActivityStep[] = [
   {
     id: "graph-query",
     label: "Querying The Graph",
-    detail: "Aave V3, Compound V3 positions via Subgraph MCP (live)",
+    detail: "Aave V3, Compound V3 positions via Subgraph MCP",
     duration: 2200,
     icon: "graph",
   },
@@ -121,10 +121,10 @@ export function recommendationText(
 ): string {
   switch (rec) {
     case "reduce exposure":
-      return "⚠️ Reduce Exposure";
+      return "Reduce Exposure";
     case "hold":
-      return "🔶 Hold & Monitor";
+      return "Hold & Monitor";
     case "safe":
-      return "✅ Position is Safe";
+      return "Position is Safe";
   }
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { WalletIcon } from "@/components/Icons";
 
 export default function WalletInput() {
   const [address, setAddress] = useState("");
@@ -11,7 +12,9 @@ export default function WalletInput() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!address) {
-      setError("Please enter a wallet address");
+      router.push(
+        `/check?address=${encodeURIComponent("0x7a3f8E2d1C9b4A5e6F0d7B8c9E1a2D3f4C5b6A7c")}`
+      );
       return;
     }
     // Basic length check for demo
@@ -27,8 +30,8 @@ export default function WalletInput() {
   return (
     <form onSubmit={handleSubmit} className="w-full relative">
       <div className="relative flex items-center">
-        <div className="absolute left-4 text-xl text-[var(--color-text-muted)]">
-          👛
+        <div className="absolute left-4 text-[var(--color-text-muted)]">
+          <WalletIcon className="h-4 w-4" />
         </div>
         <input
           type="text"
@@ -37,7 +40,7 @@ export default function WalletInput() {
             setAddress(e.target.value);
             if (error) setError("");
           }}
-          placeholder="0x..."
+          placeholder="0x7a3f8E2d1C9b4A5e6F0d7B8c9E1a2D3f4C5b6A7c"
           className="w-full bg-[rgba(255,255,255,0.03)] border border-[var(--color-border-glass)] rounded-xl py-4 pl-12 pr-36 text-[var(--color-text-primary)] mono focus:outline-none focus:border-[var(--color-accent-purple)] transition-colors shadow-inner placeholder:text-[var(--color-text-muted)]"
         />
         <div className="absolute right-2 top-2 bottom-2">

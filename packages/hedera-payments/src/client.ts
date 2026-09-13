@@ -114,7 +114,11 @@ function buildPaidFetch() {
   const client = new x402Client().register(
     "hedera:*",
     new ExactHederaScheme(signer)
-  );
+  ).setSpendControls({
+    allowedAssets: [
+      { network: HEDERA_CAIP2, asset: "0.0.0" },
+    ],
+  });
   return wrapFetchWithPayment(fetch, client);
 }
 
@@ -149,9 +153,9 @@ export async function callPaidEndpoint<T = unknown>(
     opts?.budget ??
     (opts?.credential
       ? unlockSessionBudget(
-          maxBudget ?? DEFAULT_SESSION_BUDGET_HBAR,
-          opts.credential
-        )
+        maxBudget ?? DEFAULT_SESSION_BUDGET_HBAR,
+        opts.credential
+      )
       : maxBudget != null
         ? createSessionBudget(maxBudget, opts?.credential)
         : getSessionBudget(DEFAULT_SESSION_BUDGET_HBAR));
@@ -212,7 +216,12 @@ export async function callPaidEndpoint<T = unknown>(
 
   if (!paid.ok) {
     const text = await paid.text();
-    throw new Error(`Paid request failed ${paid.status}: ${text.slice(0, 300)}`);
+    const responseHeader =
+      paid.headers.get("PAYMENT-RESPONSE") ||
+      paid.headers.get("payment-response") ||
+      paid.headers.get("X-PAYMENT-RESPONSE");
+    const detail = text || responseHeader || "empty response";
+    throw new Error(`Paid request failed ${paid.status}: ${detail.slice(0, 500)}`);
   }
 
   const data = (await paid.json()) as T;

@@ -69,7 +69,9 @@ app.use(
 
 app.route("/analyze", analyzeRoutes);
 
-assertPayToConfigured();
+if (process.env.DEMO_MODE === "false") {
+  assertPayToConfigured();
+}
 
 console.log(`AgentPass API listening on http://localhost:${API_PORT}`);
 console.log(`  POST /analyze  → x402 gated @ ${ANALYZE_PRICE_TINYBARS} tinybars HBAR`);

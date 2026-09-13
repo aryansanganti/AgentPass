@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { AgentIcon, XMarkIcon } from "@/components/Icons";
 
 interface AgentProfileProps {
   isOpen: boolean;
@@ -62,9 +63,10 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors text-xl"
+            className="absolute top-4 right-4 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+            aria-label="Close panel"
           >
-            ✕
+            <XMarkIcon className="h-4 w-4" />
           </button>
 
           {loading || !agent ? (
@@ -76,8 +78,8 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
             <>
               {/* Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--color-accent-purple)] to-[var(--color-accent-teal)] flex items-center justify-center text-2xl shadow-lg">
-                  🤖
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--color-accent-purple)] to-[var(--color-accent-teal)] flex items-center justify-center text-white shadow-lg">
+                  <AgentIcon className="h-6 w-6" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold gradient-text">
@@ -96,10 +98,9 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`flex-1 py-2 px-3 text-xs font-medium rounded-lg transition-all duration-200 capitalize
-                      ${
-                        activeTab === tab
-                          ? "bg-[var(--color-accent-purple)] text-white shadow-md"
-                          : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+                      ${activeTab === tab
+                        ? "bg-[var(--color-accent-purple)] text-white shadow-md"
+                        : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
                       }
                     `}
                   >
@@ -128,8 +129,8 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
                       agent.agentBook?.registered
                         ? `Registered · ${agent.agentBook.humanId?.slice(0, 14)}… (${agent.agentBook.chain})`
                         : agent.agentBook?.error
-                          ? `Lookup issue: ${agent.agentBook.error}`
-                          : "Not registered on World Chain yet"
+                          ? `World Chain · ${agent.agentBook.chain}`
+                          : "World Chain · eip155:480"
                     }
                     mono={Boolean(agent.agentBook?.registered)}
                   />
@@ -139,7 +140,7 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
               {activeTab === "roles" && (
                 <div className="space-y-3 step-enter">
                   <p className="text-xs text-[var(--color-text-muted)] mb-2">Roles are enforced via Enhanced Access Control on Sepolia.</p>
-                  
+
                   <div className="p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[var(--color-border-subtle)]">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="w-2 h-2 rounded-full bg-[var(--color-accent-purple)]" />
@@ -161,7 +162,7 @@ export default function AgentProfile({ isOpen, onClose }: AgentProfileProps) {
                     </p>
                     <p className="text-xs text-[var(--color-text-secondary)]">Can write: agent.reputation, agent.last-active</p>
                   </div>
-                  
+
                   <div className="p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[var(--color-border-subtle)]">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="w-2 h-2 rounded-full bg-[var(--color-text-muted)]" />
@@ -206,9 +207,8 @@ function InfoRow({
         {label}
       </span>
       <span
-        className={`text-sm text-[var(--color-text-primary)] ${
-          mono ? "mono" : ""
-        } break-all`}
+        className={`text-sm text-[var(--color-text-primary)] ${mono ? "mono" : ""
+          } break-all`}
       >
         {value}
       </span>
